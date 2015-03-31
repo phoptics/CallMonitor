@@ -1,0 +1,538 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=gb2312" />
+<title>android如何使用BroadcastReceiver后台实现来电通话记录的监听 - 手机系统 - 编程入门网</title>
+<meta name="description" content="android如何使用BroadcastReceiver后台实现来电通话记录的监听并存取到sqllite数据库通过Contentprovilder实现接口 BroadcastReceiver 是android四大组件的一个" />
+<link href="/templets/style/bianceng.css" rel="stylesheet" media="screen" type="text/css" />
+<script language="javascript" src="/js1/head.js"></script>
+</head>
+<body class="articleview" onload="ReImgSize()">
+<div class="header">
+    <div class="top w960 center">
+      <div class="title"><a href="/"><img src="/images/logo.gif" border="0" /></a></div>
+		<div class="banner"><script src="/js1/top.js"></script></div>
+		<div class="rlink"><script src="/js1/top1.js"></script></div>
+	</div>
+	<div class="nav mt1">
+      <div class="w960 center">
+        <ul>
+          <li><a href='/'>首页</a></li>
+          <li><a href='/Programming/'>编程语言</a></li>
+          <li><a href='/webkf/'>web开发</a></li>
+          <li><a href='/database/'>数据库</a></li>
+          <li><a href='/Network/'>网络技术</a></li><li class='thisclass'><a href='/OS/'>操作系统</a> </li>
+          <li><a href='/Servers/'>服务器</a></li>
+          <li><a href='/web/'>网页设计</a></li>
+          <li><a href='/Design/'>图形设计</a></li>
+          <li><a href='/Office/'>办公软件</a></li>
+          <li><a href='/soft/'>常用软件</a></li>
+          <li><a href='/shadu/'>杀毒频道</a></li>
+          <li><a href='/PC/'>学电脑</a></li>
+          <li><a href='/special/'>专题</a></li>
+          </ul>
+      </div>
+	</div>
+</div>
+<div class="channel-nav w960 center clear">
+	<ul>
+          <li><a href='/OS/home/'><span>Windows家庭版</span></a></li>
+          <li><a href='/OS/server/'><span>Windows Server</span></a></li>
+          <li><a href='/OS/Vista/'><span>Vista</span></a></li>
+          <li><a href='/OS/xp/'><span>xp/2003</span></a></li>
+          <li><a href='/OS/2000/'><span>2000</span></a></li>
+          <li><a href='/OS/skills/'><span>技巧</span></a></li>
+          <li><a href='/OS/unix/'><span>Unix</span></a></li>
+          <li><a href='/OS/Linux/'><span>Linux</span></a></li>
+          <li><a href='/OS/FreeBSD/'><span>FreeBSD</span></a></li><li class='thisclass'><a href='/OS/extra/'><span>手机系统</span></a> </li>
+          <li><a href='/OS/DOS/'><span>DOS</span></a></li>
+          <li><a href='/OS/other/'><span>其他系统</span></a></li>
+	</ul>
+</div>
+<div class="hf"><script src="/js1/1.js"></script></div>
+<div class="w960 center clear mt1">
+	<div class="pleft">
+		<div class="place">
+			<strong>当前位置:</strong> <a href='http://www.bianceng.cn/'>编程入门</a> > <a href='/OS/'>操作系统</a> > <a href='/OS/extra/'>手机系统</a> > 正文
+		</div>
+		<div class="viewbox">
+			<div class="title">
+				<h1>android如何使用BroadcastReceiver后台实现来电通话记录的监听</h1>
+			</div>
+		<div class="info"><small>时间:</small>2014-06-13 cnblogs 有梦想的小人物
+				</div>
+		<div class="bodyarc"><div class="ad300"><script src="/js1/300.js"></script></div><p>android如何使用BroadcastReceiver后台实现来电通话记录的监听并存取到sqllite数据库通过Contentprovilder实现接口</p>
+<p>BroadcastReceiver 是android四大组件的一个，本质上是一种全局的监听器 ，用于监听全局的广播消息。下面实现了后台监听android手机通话记录。本demo 分两个程序，第一个程序是设置监听器，然后模拟器重启后就会有一个全局的 service在后台监听你的来电显示，大多数通话管理软件都是这么干的，第二个项 目是获取通话记录的，由于只是做一个小实验，所以是根据某个项目改的，里面 涉及到一些ContentPrivler的知识，还有sqllite数据库，里面定义名称并非其意 思。</p>
+<p><img alt="" width="533" height="879" src="http://pic1.bianceng.cn/uploads/allimg/14/06/13/15092H550-0.jpg" /></p>
+<p>第一个程序代码配置文件</p>
+<pre>
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
+&lt;manifest 
+
+xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;
+    package=&quot;com.android&quot;
+    android:versionCode=&quot;1&quot;
+    android:versionName=&quot;1.0&quot; &gt;
+&lt;application android:icon=&quot;@drawable/ic_launcher&quot; android:label=&quot;@string/app_name&quot;&gt;
+        &lt;service android:name=&quot;.TtActivity&quot;&gt;
+        &lt;/service&gt;
+        &lt;!-- 定义一个BroadcastReceiver,监听系统开机广播  --&gt;
+        &lt;receiver android:name=&quot;.LaunchReceiver&quot;&gt;    
+            &lt;intent-filter&gt;    
+               &lt;action android:name=&quot;android.intent.action.BOOT_COMPLETED&quot; /&gt;   
+            &lt;/intent-filter&gt;    
+        &lt;/receiver&gt;
+            
+        &lt;provider android:name=&quot;.DictProvider&quot;  android:authorities=&quot;org.crazyit.providers.dictprovider&quot;/&gt;
+    &lt;/application&gt;
+    &lt;!-- 授予应用程序访问系统开机事件的权限 --&gt;
+    &lt;uses-permission android:name=&quot;android.permission.RECEIVE_BOOT_COMPLETED&quot;/&gt;
+    
+&lt;/manifest&gt;
+    
+/**
+ * 
+ */
+package com.android;
+    
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+    
+    
+public class LaunchReceiver extends BroadcastReceiver
+{
+    @Override
+    public void onReceive(Context context, Intent intent)
+    {
+        Intent tIntent = new Intent(context , TtActivity.class);
+        // 启动指定Service
+        context.startService(tIntent);
+    }
+}
+    
+    
+    
+/**
+ * 
+ */
+package com.android;
+    
+import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
+    
+    
+public class MyDatabaseHelper extends SQLiteOpenHelper
+{
+    final String CREATE_TABLE_SQL =
+        &quot;create table dict(_id integer primary key autoincrement , word , detail)&quot;;
+    /**
+     * @param context
+     * @param name
+     * @param version
+     */
+    public MyDatabaseHelper(Context context, String name, int version)
+    {
+        super(context, name, null, version);
+    }
+    
+    @Override
+    public void onCreate(SQLiteDatabase db)
+    {
+        // 第一个使用数据库时自动建表
+        db.execSQL(CREATE_TABLE_SQL);
+    }
+    
+    @Override
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion)
+    {
+        System.out.println(&quot;--------onUpdate Called--------&quot; 
+            + oldVersion + &quot;---&gt;&quot; + newVersion);
+    }
+}
+    
+    
+package com.android;
+    
+    
+import java.io.FileNotFoundException;
+import java.io.OutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+    
+    
+import android.app.Service;
+import android.content.Context;
+import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
+import android.os.IBinder;
+import android.telephony.PhoneStateListener;
+import android.telephony.TelephonyManager;
+    
+    
+public class TtActivity extends Service
+{   MyDatabaseHelper dbHelper;
+    TelephonyManager tManager;
+    SimpleDateFormat format=new SimpleDateFormat(&quot;yyyy-MM-dd HH:mm:ss&quot;);
+    String word=format.format(new Date());        
+    @Override
+    public IBinder onBind(Intent intent)
+    {
+        return null;
+    }
+    @Override
+    public void onCreate()
+    {
+        tManager = (TelephonyManager) getSystemService
+                (Context.TELEPHONY_SERVICE);
+        dbHelper = new MyDatabaseHelper(this 
+                , &quot;myDict.db3&quot; , 1);
+            // 创建一个通话状态监听器
+            PhoneStateListener listener = new PhoneStateListener()
+            {
+                @Override
+                public void onCallStateChanged(int state
+                    , String detail)
+                {
+                    switch (state)
+                    {
+                        // 无任何状态
+                        case TelephonyManager.CALL_STATE_IDLE:
+                            break;
+                        case TelephonyManager.CALL_STATE_OFFHOOK:
+                            break;
+                        // 来电铃响时
+                        case TelephonyManager.CALL_STATE_RINGING:
+                            OutputStream os = null;
+                            try
+                            {
+                                os = openFileOutput(&quot;phoneList&quot;, MODE_APPEND);
+                            }
+                            catch (FileNotFoundException e)
+                            {
+                                e.printStackTrace();
+                            }
+                                
+                            insertData(dbHelper.getReadableDatabase() , word , detail);
+//                            PrintStream ps = new PrintStream(os);
+//                            // 将来电号码记录到文件中
+//                            ps.println(new Date() + &quot;    来电：&quot; + incomingNumber);
+//                            ps.close();
+                            break;
+                        default:
+                            break;
+                    }
+                    super.onCallStateChanged(state, detail);
+                }
+            };
+            //监听电话通话状态的改变 
+            tManager.listen(listener
+                , PhoneStateListener.LISTEN_CALL_STATE);
+        }
+    private void insertData(SQLiteDatabase db
+            , String word , String detail)
+        {
+            //执行插入语句
+            db.execSQL(&quot;insert into dict values(null , ? , ?)&quot;
+                , new String[]{word , detail});
+        }
+        @Override
+        public void onDestroy()
+        {
+            super.onDestroy();
+            //退出程序时关闭MyDataBaseHelper里的SQLiteDatabase
+            if (dbHelper != null)
+            {
+                dbHelper.close();
+            }
+        }
+}
+    
+    
+/**
+ * 
+ */
+package com.android;
+    
+import android.net.Uri;
+import android.provider.BaseColumns;
+    
+/**
+ * @version  1.0
+ */
+public final class Words
+{
+    // 定义该ContentProvider的Authority
+    public static final String AUTHORITY 
+        = &quot;org.crazyit.providers.dictprovider&quot;;
+    //定义一个静态内部类
+    public static final class Word implements BaseColumns
+    {
+        // 定义Content所允许操作的3个数据列
+        public final static String _ID = &quot;_id&quot;;
+        public final static String WORD = &quot;word&quot;;
+        public final static String DETAIL = &quot;detail&quot;;
+        // 定义该Content提供服务的两个Uri
+        public final static Uri DICT_CONTENT_URI = 
+            Uri.parse(&quot;content://&quot; +  AUTHORITY + &quot;/words&quot;);
+        public final static Uri WORD_CONTENT_URI = 
+            Uri.parse(&quot;content://&quot; +  AUTHORITY + &quot;/word&quot;);        
+    }
+}</pre>
+<pre>
+/**
+ * 
+ */
+package com.android;
+    
+import android.content.ContentProvider;
+import android.content.ContentUris;
+import android.content.ContentValues;
+import android.content.UriMatcher;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
+    
+/**
+ * @version  1.0
+ */
+public class DictProvider extends ContentProvider
+{
+    private static UriMatcher matcher
+        = new UriMatcher(UriMatcher.NO_MATCH);
+    private static final int WORDS = 1;
+    private static final int WORD = 2;
+    private MyDatabaseHelper dbOpenHelper;
+    static
+    {
+        // 为UriMatcher注册两个Uri
+        matcher.addURI(Words.AUTHORITY, &quot;words&quot;, WORDS);
+        matcher.addURI(Words.AUTHORITY, &quot;word/#&quot;, WORD);
+    }
+    // 第一次调用该DictProvider时，系统先创建DictProvider对象，并回调该方法
+    @Override
+    public boolean onCreate()
+    {
+        dbOpenHelper = new MyDatabaseHelper(this.getContext(), &quot;myDict.db3&quot;, 1);
+        return true;
+    }
+    // 插入数据方法
+    @Override
+    public Uri insert(Uri uri, ContentValues values)
+    {
+        // 获得数据库实例
+        SQLiteDatabase db = dbOpenHelper.getReadableDatabase();
+        // 插入数据，返回行ID
+        long rowId = db.insert(&quot;dict&quot;, Words.Word._ID, values);
+        // 如果插入成功返回uri
+        if (rowId &gt; 0)
+        {
+            // 在已有的 Uri的后面追加ID数据
+            Uri wordUri = ContentUris.withAppendedId(uri, rowId);
+            // 通知数据已经改变
+            getContext().getContentResolver().notifyChange(wordUri, null);
+            return wordUri;
+        }
+        return null;
+    }
+    // 删除数据的方法
+    @Override
+    public int delete(Uri uri, String selection, String[] selectionArgs)
+    {
+        SQLiteDatabase db = dbOpenHelper.getReadableDatabase();
+        // 记录所删除的记录数
+        int num = 0;
+        // 对于uri进行匹配。
+        switch (matcher.match(uri))
+        {
+            case WORDS:
+                num = db.delete(&quot;dict&quot;, selection, selectionArgs);
+                break;
+            case WORD:
+                // 解析出所需要删除的记录ID
+                long id = ContentUris.parseId(uri);
+                String where = Words.Word._ID + &quot;=&quot; + id;
+                // 如果原来的where子句存在，拼接where子句
+                if (selection != null &amp;&amp; !selection.equals(&quot;&quot;))
+                {
+                    where = where + &quot; and &quot; + selection;
+                }
+                num = db.delete(&quot;dict&quot;, where, selectionArgs);
+                break;
+            default:
+                throw new IllegalArgumentException(&quot;未知Uri:&quot; + uri);
+        }
+        // 通知数据已经改变
+        getContext().getContentResolver().notifyChange(uri, null);
+        return num;
+    }
+    // 修改数据的方法
+    @Override
+    public int update(Uri uri, ContentValues values, String selection,
+        String[] selectionArgs)
+    {
+        SQLiteDatabase db = dbOpenHelper.getWritableDatabase();
+        // 记录所修改的记录数
+        int num = 0;
+        switch (matcher.match(uri))
+        {
+            case WORDS:
+                num = db.update(&quot;dict&quot;, values, selection, selectionArgs);
+                break;
+            case WORD:
+                // 解析出想修改的记录ID
+                long id = ContentUris.parseId(uri);
+                String where = Words.Word._ID + &quot;=&quot; + id;
+                // 如果原来的where子句存在，拼接where子句
+                if (selection != null &amp;&amp; !selection.equals(&quot;&quot;))
+                {
+                    where = where + &quot; and &quot; + selection;
+                }
+                num = db.update(&quot;dict&quot;, values, where, selectionArgs);
+                break;
+            default:
+                throw new IllegalArgumentException(&quot;未知Uri:&quot; + uri);
+        }
+        // 通知数据已经改变
+        getContext().getContentResolver().notifyChange(uri, null);
+        return num;
+    }
+    // 查询数据的方法
+    @Override
+    public Cursor query(Uri uri, String[] projection, String selection,
+        String[] selectionArgs, String sortOrder)
+    {
+        SQLiteDatabase db = dbOpenHelper.getReadableDatabase();
+        switch (matcher.match(uri))
+        {
+            case WORDS:
+                // 执行查询
+                return db.query(&quot;dict&quot;, projection, selection, selectionArgs,
+                    null, null, sortOrder);
+            case WORD:
+                // 解析出想查询的记录ID
+                long id = ContentUris.parseId(uri);
+                String where = Words.Word._ID + &quot;=&quot; + id;
+                // 如果原来的where子句存在，拼接where子句
+                if (selection != null &amp;&amp; !&quot;&quot;.equals(selection))
+                {
+                    where = where + &quot; and &quot; + selection;
+                }
+                return db.query(&quot;dict&quot;, projection, where, selectionArgs, null,
+                    null, sortOrder);
+            default:
+                throw new IllegalArgumentException(&quot;未知Uri:&quot; + uri);
+        }
+    }
+    // 返回指定uri参数对应的数据的MIME类型
+    @Override
+    public String getType(Uri uri)
+    {
+        switch (matcher.match(uri))
+        {
+            // 如果操作的数据是多项记录
+            case WORDS:
+                return &quot;vnd.android.cursor.dir/org.crazyit.dict&quot;;
+                // 如果操作的数据是单项记录
+            case WORD:
+                return &quot;vnd.android.cursor.item/org.crazyit.dict&quot;;
+            default:
+                throw new IllegalArgumentException(&quot;未知Uri:&quot; + uri);
+        }
+    }
+}</pre>
+<p><center><script src="/js1/4682.js"></script></center></div>
+		<div class="dede_pages">
+				<ul class="pagelist">
+                    <li><a>共2页: </a></li><li><a href='#'>上一页</a></li><li class="thisclass"><a href='#'>1</a></li><li><a href='41576_2.htm'>2</a></li><li><a href='41576_2.htm'>下一页</a></li>
+				</ul>
+		  </div>
+		<div class="boxoff"></div>
+		<div class="handle">
+				<div class="context">
+					<ul>
+						<li>上一篇：<a href='/OS/extra/201406/41575.htm'>Android利用Jsoup解析html 开发网站客户端小记</a> </li>
+						<li>下一篇：<a href='/OS/extra/201406/41577.htm'>Android实现ListView过滤功能，继承于BaseAdapter，非ArrayAdapter</a> </li>
+					</ul>
+				</div>
+	</div>
+		</div>
+			</div>
+		<div class="pright">
+        <div class="commend">
+			<dl class="tbox">
+				<dt><strong>推荐内容</strong></dt>
+				<dd>
+					<ul class="c1 ico2">
+                    <li><a href="/OS/extra/201311/38082.htm">安卓UI设计与开发入门教程</a></li>
+<li><a href="/OS/extra/201306/36801.htm">Cocos2D-X手机游戏开发入门</a></li>
+<li><a href="/OS/extra/201306/36778.htm">Windows搭建Android开发环境</a></li>
+<li><a href="/OS/extra/201301/35252.htm">Android开发与测试教程</a></li>
+<li><a href="/OS/extra/201301/34950.htm">Android RoboGuice使用详细指南</a></li>
+<li><a href="/OS/extra/201212/34874.htm">微软发布Windows 7平台Windows Phone 8同步</a></li>
+<li><a href="/OS/extra/201212/34872.htm">为IOS 5设计消息通知</a></li>
+<li><a href="/OS/extra/201105/26833.htm">ios - IPhone开发三天上手纪实</a></li>
+<li><a href="/OS/extra/201004/16650.htm">系出名门 Android系列文章索引</a></li>
+
+					</ul>
+				</dd>
+			</dl>
+		</div>
+		<div class="my_box1"><script src="/js1/border3.js"></script></div>
+		<div class="commend mt1">
+			<dl class="tbox">
+				<dt><strong>热门文章</strong></dt>
+				<dd>
+					<ul class="c1 ico2">
+		   <li><a href="/OS/extra/201106/27059.htm">Android常见控件之SimpleAdapter和List</a>
+            </li>
+<li><a href="/OS/extra/201104/26335.htm">ios编程：iphone的启动画面</a>
+            </li>
+<li><a href="/OS/extra/201104/26346.htm">Android体系结构</a>
+            </li>
+<li><a href="/OS/extra/201106/26968.htm">Windows Phone 7开发教程（1）——Windows </a>
+            </li>
+<li><a href="/OS/extra/201106/27054.htm">Android常用布局控件之RelativeLayout</a>
+            </li>
+<li><a href="/OS/extra/201106/27055.htm">Android常见布局控件之LinearLayout和Table</a>
+            </li>
+<li><a href="/OS/extra/201106/27058.htm">Android常见控件之ProgressBar</a>
+            </li>
+<li><a href="/OS/extra/201106/27056.htm">Android常见控件之RadioGroup，RadioButton</a>
+            </li>
+<li><a href="/OS/extra/201011/20561.htm">android开发ViewFlipper触摸动画</a>
+            </li>
+<li><a href="/OS/extra/201104/26359.htm">Android开发环境配置完成</a>
+            </li>
+<li><a href="/OS/extra/201105/26829.htm">ios - iphone实现一个最简单的TableView</a>
+            </li>
+<li><a href="/OS/extra/201004/16653.htm">系出名门Android(3) - 对话框(Dialog)和通</a>
+            </li>
+<li><a href="/OS/extra/201106/27057.htm">Android常见控件之TextView、EditView、But</a>
+            </li>
+<li><a href="/OS/extra/201004/16658.htm">系出名门Android(8) - 控件(View)之TextSwi</a>
+            </li>
+<li><a href="/OS/extra/201004/16657.htm">系出名门Android(7) - 控件(View)之ZoomCon</a>
+            </li>
+<li><a href="/OS/extra/201004/16656.htm">系出名门Android(6) - 控件(View)之DatePic</a>
+            </li>
+<li><a href="/OS/extra/200911/12278.htm">耗时一小时，普通PC安装苹果Leopard实战</a>
+            </li>
+<li><a href="/OS/extra/201010/19740.htm">可循环显示图像的Android Gallery组件</a>
+            </li>
+
+					</ul>
+				</dd>
+			</dl>
+		</div>
+		<div class="my_box1"><script src="/js1/border1.js"></script></div>
+</div>
+</div>
+<div class="hf1"><script src="/js1/2.js"></script></div>
+<div class="footer w960 center mt1 clear">
+<p class="copyright">Bianceng.cn,All Rights Reserved. <script src="/js/tongji.js"></script></p>
+</div>
+<script src="/plus/count.php?aid=41576&mid=4" language="javascript"></script>
+</body>
+</html>

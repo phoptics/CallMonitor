@@ -1,0 +1,509 @@
+﻿
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="zh">
+<head>
+<title>Android服务Service----实现电话监听录音_Linux编程_Linux公社-Linux系统门户网站</title>
+<meta http-equiv="content-type" content="text/html;charset=utf-8"/>
+<link rel="icon" href="../../favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="../../favicon.ico" type="image/x-icon"/>
+<meta name="description" content="Android中的服务和windows中服务是类似的东西，服务一般没有用户操作界面，它运行于系统中不容易被用户发觉，可以使用它开发如监"/>
+<meta name="keywords" content="Android基础教程,Android开发教程,Android服务Service----实现电话监听录音,编程,Linux编程,Linux Shell,Android,Android教程,JAVA,C语言,Python,HTML5"/>
+<meta name="generator" content="Linux公社"/>
+<meta name="generator" content="Linux"/>
+<link rel="stylesheet" href="../../style/systems/style.css" type="text/css"/>
+<meta name="generator" content="专业的Linux网站"/>
+<script type="text/javascript" src="../../inc/jquery.js"></script>
+<script type="text/javascript" src="../../inc/iwms.js"></script>
+<script type="text/javascript">iwms.urlPrefix="../../";</script>
+
+<script type="text/javascript" src="../../inc/show.js"></script>
+</head>
+<body>
+<div class="topBar">
+	<div class="twidth">
+	
+	<div style="float:right">
+		<script type="text/javascript" src="../../inc/language.js"></script>
+	</div>
+	
+	<div id="topUser">你好，游客 <a href="#" onclick="iwms.logPop()">登录</a>
+	<a href="../../memberreg.aspx" rel="nofollow">注册</a>
+	<a href="../../search.aspx" rel="nofollow">搜索</a>
+	</div>
+	</div>
+</div>
+<div class="twidth">
+<div id="sitehead">
+<div class="l"></div>
+<div class="r"></div>
+<div class="m">
+	<table width="100%">
+	<tr align="center"><td width="160">
+	<a href="http://www.linuxidc.com/"><img style="filter: chroma(color=#FFFFFF);" src="../../pic/logo.jpg" alt="Linux公社" width="155" height="53" border="0" /></a>
+	</td><td>
+	<div align="center"><script src="/linuxfile/linux.js" type="text/javascript" language="javaScript"></script></div>
+	</td>
+	</tr></table>
+</div>
+</div>
+<div id="navbar">
+<div class="l"></div>
+<div class="r"></div>
+<div class="m">
+	<a href="../../index.htm" class="first">首页</a><a href="../../it/">Linux新闻</a><a href="../../Linuxit/">Linux教程</a><a href="../../MySql/">数据库技术</a><a href="../../RedLinux/" class="thisclass">Linux编程</a><a href="../../Apache/">服务器应用</a><a href="../../Unix/">Linux安全</a><a href="../../download/">Linux下载</a><a href="../../Linuxrz/">Linux认证</a><a href="../../theme/">Linux主题</a><a href="../../Linuxwallpaper/">Linux壁纸</a><a href="../../linuxsoft/">Linux软件</a><a href="../../digi/">数码</a><a href="../../mobile/">手机</a><a href="../../diannao/">电脑</a>
+
+</div>
+</div>
+
+<div id="navsub">
+<div class="l"></div>
+<div class="r"></div>
+<div class="m">
+	<a href="../../index.htm">首页</a> → <a href="../../RedLinux/">Linux编程</a>
+</div>
+</div>
+<div class="linuxe1"><script type="text/javascript" language="javaScript" src="/linuxfile/linuxe1.js"></script></div>
+<div class="linux1"><script type="text/javascript" language="javaScript" src="/linuxfile/linux1.js"></script></div>
+<div class="linuxa"><script type="text/javascript" language="javaScript" src="/linuxfile/linuxa.js"></script></div>
+<div class="linuxa1"><script type="text/javascript" language="javaScript" src="/linuxfile/linuxa1.js"></script></div>
+<table id="middle" width="100%" cellspacing="0" cellpadding="0" style="table-layout:fixed">
+<tr valign="top"><td>
+
+	<div class="mframe mR">
+	<div class="tl"></div>
+	<div class="tr"></div>
+	<div class="tm">
+		<div class="moreR">
+			背景：<script type="text/javascript">WriteBg()</script>
+		</div>
+		<span class="tt">阅读新闻</span>
+	</div>
+	<div class="wrapper">
+	<div class="ml"></div>
+	<div class="mr"></div>
+	<div class="mm" id="bodyTd">
+		<div id="printBody" style="word-break:break-all;">
+			<div style="text-align:center"><h1 class="aTitle">Android服务Service----实现电话监听录音</h1></div>
+			
+			<table width="97%" align="center">
+				<tr>
+				<td width="140">[日期：2011-10-13]</td>
+				<td align="center">来源：Linux社区&nbsp;
+				作者：junjieking</td>
+				<td width="160" align="right">[字体：<a href="javascript:ContentSize(16)">大</a> <a href="javascript:ContentSize(0)">中</a> <a href="javascript:ContentSize(12)">小</a>]
+				</td></tr>
+			</table>
+<div id="li_all">
+<div id="li_1"><script type="text/javascript" src="/linuxfile/linux201.js"></script></div>
+<div id="li_2"><script type="text/javascript" src="/linuxfile/linux2.js"></script></div>
+</div>
+			<div id="content"><div class="linux19"><script type="text/javascript" language="javaScript" src="/linuxfile/linux19.js"></script></div> <P><a href="http://www.linuxidc.com/topicnews.aspx?tid=11" target="_blank" title="Android">Android</a>中的服务和windows中服务是类似的东西，服务一般没有用户操作界面，它运行于系统中不容易被用户发觉，可以使用它开发如监控之类的程序。服务的开发比较简单，如下：</P>
+<P>第一步，继承Service类</P>
+<P>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; publicclass SMSService extends Service{}</P>
+<P>第二步，在AndroidManifest.xml文件中的&lt;application&gt;节点里对服务进行配置：</P>
+<P>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;serviceandroid:name= ".SMSService"/&gt;</P>
+<P>服务不能自己运行，需要通过调用Context.startService()或Context.bindService()方法启动服务。这两个方法都可以启动Service，但是它们的使用场合有所不同。使用startService()方法启用服务，调用者与服务之间没有关连，即使调用者退出了，服务仍然运行。使用bindService()方法启用服务，调用者与服务绑定在了一起，调用者一旦退出，服务也就终止。</P>
+<P>采用Context.startService()方法启动服务，在服务未被创建时，系统会先调用服务的onCreate()方法，接者调用onStart()方法。如果调用startService()方法前服务已经被创建，多次调用startService()方法并不会导致多次创建服务，但会导致多次调用onStart()方法，采用startService()方法启动的服务，只能调用Context.stopService()方法结束服务，服务结束时会调用onDestroy()方法。</P>
+<P>电话窃听：</P>
+<P>要实现电话窃听，需要监听电话的状态，方法如下：</P>
+<P align=left>TelephonyManager telManager =(TelephonyManager)<STRONG>this</STRONG>.getSystemService(Context.<EM>TELEPHONY_SERVICE</EM>);</P>
+<P>telManager.listen(<STRONG>new</STRONG> TelListener(), PhoneStateListener.<EM>LISTEN_CALL_STATE</EM>);</P>
+<P>&nbsp;</P>
+<P align=left><STRONG>private class</STRONG> TelListener <STRONG>extends</STRONG> PhoneStateListener{</P>
+<P align=left>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; @Override</P>
+<P align=left>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <STRONG>public void</STRONG> onCallStateChanged(<STRONG>int</STRONG> state, StringincomingNumber) {</P>
+<P align=left>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <STRONG>try</STRONG>{</P>
+<P align=left>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <STRONG>switch</STRONG> (state) {</P>
+<P align=left>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <STRONG>case</STRONG> TelephonyManager.<EM>CALL_STATE_IDLE</EM>: //无任何状态时</P>
+<P align=left>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <STRONG>break</STRONG>;</P>
+<P align=left>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <STRONG>case</STRONG> TelephonyManager.<EM>CALL_STATE_OFFHOOK</EM>: //接起电话时</P>
+<P align=left>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <STRONG>break</STRONG>;</P>
+<P align=left><STRONG>case</STRONG> TelephonyManager.<EM>CALL_STATE_OFFHOOK</EM>: //接起电话时</P>
+<P align=left>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <STRONG>break</STRONG>;</P>
+<P align=left>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <STRONG>default</STRONG>:</P>
+<P align=left>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <STRONG>break</STRONG>;</P>
+<P align=left>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</P>
+<P align=left>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<STRONG>catch</STRONG> (Exception e) {</P>
+<P align=left>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; e.printStackTrace();</P>
+<P align=left>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</P>
+<P align=left>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <STRONG>super</STRONG>.onCallStateChanged(state, incomingNumber);</P>
+<P align=left>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</P>
+<P align=left>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </P>
+<P>&nbsp;&nbsp;&nbsp; }</P>
+<P>&nbsp;</P>
+<P>在清单文件AndroidManifest.xml中添加权限</P>
+<P>&lt;uses-permissionandroid:name="android.permission.READ_PHONE_STATE"/&gt;</P>
+<P>音频采集：</P>
+<P>你可以使用手机进行现场录音，实现步骤如下：</P>
+<P>第一步：在功能清单文件AndroidManifest.xml中添加音频刻录权限</P>
+<P>&lt;uses-permissionandroid:name="android.permission.RECORD_AUDIO"/&gt;</P>
+<P>第二步：编写音频刻录代码：</P>
+<P align=left>MediaRecorder recorder = <STRONG>new</STRONG> MediaRecorder();</P>
+<P align=left>recorder.setAudioSource(MediaRecorder.AudioSource.<EM>MIC</EM>);//从麦克风采集声音</P>
+<P align=left>recorder.setOutputFormat(MediaRecorder.OutputFormat.<EM>THREE_GPP</EM>); //内容输出格式</P>
+<P align=left>recorder.setAudioEncoder(MediaRecorder.AudioEncoder.<EM>AMR_NB</EM>);//音频编码方式</P>
+<P align=left>File audioFile = <STRONG>new</STRONG> File(getCacheDir(), incomingNumber + "_" + System.<EM>currentTimeMillis</EM>()+ ".3gp");</P>
+<P align=left>recorder.setOutputFile(audioFile.getAbsolutePath());</P>
+<P align=left>recorder.prepare(); //预期准备</P>
+<P>recorder.start(); //开始刻录</P>
+<P>…………</P>
+<P align=left>recorder.stop(); //停止刻录</P>
+<P align=left>recorder.reset();&nbsp; //重设</P>
+<P>recorder.release(); //释放资源</P>
+<P>采用Context.bindService()方法启动服务，在服务未被创建时，系统会先调用服务的onCreate()方法，接着调用onBind()方法，这个时候调用者和服务绑定在一起，如果客户端要与服务进行通信，那么，onBind()方法必须返回IBinder对象，如果调用者退出了，系统就会先调用服务的onUnbind()方法，接着调用onDestroy()方法，如果调用bindService()方法前服务已经被绑定，多次调用bindService()方法并不会导致多次创建服务及绑定(也就是说onCreate()和onBind()方法并不会被多次调用)，如果调用者希望与正在绑定的服务解除绑定，可以调用nbindService()方法，调用 该方法也会导致系统调用服务的onUnbind() --&gt; onDestroy()方法。</P>
+<P>事例：</P>
+<P>开机启动监听服务</P>
+<DIV class="dp-highlighter bg_java">
+<OL class=dp-j>
+<LI class=alt><SPAN><SPAN class=keyword><STRONG><FONT color=#006699>package</FONT></STRONG></SPAN><SPAN>&nbsp;com.king.phone;&nbsp;&nbsp;</SPAN></SPAN></LI>
+<LI class=""><SPAN>&nbsp;&nbsp;</SPAN></LI>
+<LI class=alt><SPAN></SPAN><SPAN class=keyword><STRONG><FONT color=#006699>import</FONT></STRONG></SPAN><SPAN>&nbsp;android.content.BroadcastReceiver;&nbsp;&nbsp;</SPAN></SPAN></LI>
+<LI class=""><SPAN></SPAN><SPAN class=keyword><STRONG><FONT color=#006699>import</FONT></STRONG></SPAN><SPAN>&nbsp;android.content.Context;&nbsp;&nbsp;</SPAN></SPAN></LI>
+<LI class=alt><SPAN></SPAN><SPAN class=keyword><STRONG><FONT color=#006699>import</FONT></STRONG></SPAN><SPAN>&nbsp;android.content.Intent;&nbsp;&nbsp;</SPAN></SPAN></LI>
+<LI class=""><SPAN></SPAN><SPAN class=keyword><STRONG><FONT color=#006699>import</FONT></STRONG></SPAN><SPAN>&nbsp;android.util.Log;&nbsp;&nbsp;</SPAN></SPAN></LI>
+<LI class=alt><SPAN>&nbsp;&nbsp;</SPAN></LI>
+<LI class=""><SPAN></SPAN><SPAN class=keyword><STRONG><FONT color=#006699>public</FONT></STRONG></SPAN><SPAN>&nbsp;</SPAN><SPAN class=keyword><STRONG><FONT color=#006699>class</FONT></STRONG></SPAN><SPAN>&nbsp;BootBroadcastReceiver&nbsp;</SPAN><SPAN class=keyword><STRONG><FONT color=#006699>extends</FONT></STRONG></SPAN><SPAN>&nbsp;BroadcastReceiver{&nbsp;&nbsp;</SPAN></SPAN></LI>
+<LI class=alt><SPAN>&nbsp;&nbsp;</SPAN></LI>
+<LI class=""><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;</SPAN><SPAN class=keyword><STRONG><FONT color=#006699>private</FONT></STRONG></SPAN><SPAN>&nbsp;</SPAN><SPAN class=keyword><STRONG><FONT color=#006699>static</FONT></STRONG></SPAN><SPAN>&nbsp;</SPAN><SPAN class=keyword><STRONG><FONT color=#006699>final</FONT></STRONG></SPAN><SPAN>&nbsp;String&nbsp;TAG&nbsp;=&nbsp;</SPAN><SPAN class=string><FONT color=#0000ff>"PhoneListener"</FONT></SPAN><SPAN>;&nbsp;&nbsp;</SPAN></SPAN></LI>
+<LI class=alt><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;</SPAN><SPAN class=annotation><FONT color=#646464>@Override</FONT></SPAN><SPAN>&nbsp;&nbsp;</SPAN></SPAN></LI>
+<LI class=""><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;</SPAN><SPAN class=keyword><STRONG><FONT color=#006699>public</FONT></STRONG></SPAN><SPAN>&nbsp;</SPAN><SPAN class=keyword><STRONG><FONT color=#006699>void</FONT></STRONG></SPAN><SPAN>&nbsp;onReceive(Context&nbsp;context,&nbsp;Intent&nbsp;intent)&nbsp;{&nbsp;&nbsp;</SPAN></SPAN></LI>
+<LI class=alt><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Log.i(TAG,&nbsp;</SPAN><SPAN class=string><FONT color=#0000ff>"boot&nbsp;completed&nbsp;received"</FONT></SPAN><SPAN>);&nbsp;&nbsp;</SPAN></SPAN></LI>
+<LI class=""><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Intent&nbsp;service&nbsp;=&nbsp;</SPAN><SPAN class=keyword><STRONG><FONT color=#006699>new</FONT></STRONG></SPAN><SPAN>&nbsp;Intent(context,&nbsp;PhoneListenService.</SPAN><SPAN class=keyword><STRONG><FONT color=#006699>class</FONT></STRONG></SPAN><SPAN>);&nbsp;&nbsp;</SPAN></SPAN></LI>
+<LI class=alt><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;context.startService(service);&nbsp;&nbsp;</SPAN></LI>
+<LI class=""><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</SPAN></LI>
+<LI class=alt><SPAN>&nbsp;&nbsp;</SPAN></LI>
+<LI class=""><SPAN>}&nbsp;&nbsp;</SPAN></LI></OL></DIV>
+<P></P>
+<P>监听来电信息，并进行录音，上传</P>
+<DIV class="dp-highlighter bg_html">
+<OL class=dp-xml>
+<LI class=alt><SPAN><SPAN>package&nbsp;com.king.phone;&nbsp;&nbsp;</SPAN></SPAN></LI>
+<LI class=""><SPAN>&nbsp;&nbsp;</SPAN></LI>
+<LI class=alt><SPAN>import&nbsp;java.io.File;&nbsp;&nbsp;</SPAN></LI>
+<LI class=""><SPAN>&nbsp;&nbsp;</SPAN></LI>
+<LI class=alt><SPAN>import&nbsp;android.app.Service;&nbsp;&nbsp;</SPAN></LI>
+<LI class=""><SPAN>import&nbsp;android.content.Context;&nbsp;&nbsp;</SPAN></LI>
+<LI class=alt><SPAN>import&nbsp;android.content.Intent;&nbsp;&nbsp;</SPAN></LI>
+<LI class=""><SPAN>import&nbsp;android.media.MediaRecorder;&nbsp;&nbsp;</SPAN></LI>
+<LI class=alt><SPAN>import&nbsp;android.os.IBinder;&nbsp;&nbsp;</SPAN></LI>
+<LI class=""><SPAN>import&nbsp;android.telephony.PhoneStateListener;&nbsp;&nbsp;</SPAN></LI>
+<LI class=alt><SPAN>import&nbsp;android.telephony.TelephonyManager;&nbsp;&nbsp;</SPAN></LI>
+<LI class=""><SPAN>import&nbsp;android.util.Log;&nbsp;&nbsp;</SPAN></LI>
+<LI class=alt><SPAN>&nbsp;&nbsp;</SPAN></LI>
+<LI class=""><SPAN>public&nbsp;class&nbsp;PhoneListenService&nbsp;extends&nbsp;Service{&nbsp;&nbsp;</SPAN></LI>
+<LI class=alt><SPAN>&nbsp;&nbsp;</SPAN></LI>
+<LI class=""><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;private&nbsp;static&nbsp;final&nbsp;String&nbsp;</SPAN><SPAN class=attribute><FONT color=#ff0000>TAG</FONT></SPAN><SPAN>&nbsp;=&nbsp;</SPAN><SPAN class=attribute-value><FONT color=#0000ff>"PhoneListener"</FONT></SPAN><SPAN>;&nbsp;&nbsp;</SPAN></SPAN></LI>
+<LI class=alt><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;@Override&nbsp;&nbsp;</SPAN></LI>
+<LI class=""><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;onCreate()&nbsp;{&nbsp;&nbsp;</SPAN></LI>
+<LI class=alt><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TelephonyManager&nbsp;</SPAN><SPAN class=attribute><FONT color=#ff0000>telManager</FONT></SPAN><SPAN>&nbsp;=&nbsp;(TelephonyManager)this.getSystemService(Context.TELEPHONY_SERVICE);&nbsp;&nbsp;</SPAN></SPAN></LI>
+<LI class=""><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;telManager.listen(new&nbsp;TelListener(),&nbsp;PhoneStateListener.LISTEN_CALL_STATE);&nbsp;&nbsp;</SPAN></LI>
+<LI class=alt><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Log.i(TAG,&nbsp;"service&nbsp;created");&nbsp;&nbsp;</SPAN></LI>
+<LI class=""><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;super.onCreate();&nbsp;&nbsp;</SPAN></LI>
+<LI class=alt><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</SPAN></LI>
+<LI class=""><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</SPAN></LI>
+<LI class=alt><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;@Override&nbsp;&nbsp;</SPAN></LI>
+<LI class=""><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;onDestroy()&nbsp;{&nbsp;&nbsp;</SPAN></LI>
+<LI class=alt><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//清空缓存目录下的所有文件&nbsp;&nbsp;</SPAN></LI>
+<LI class=""><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;File[]&nbsp;</SPAN><SPAN class=attribute><FONT color=#ff0000>files</FONT></SPAN><SPAN>&nbsp;=&nbsp;</SPAN><SPAN class=attribute-value><FONT color=#0000ff>getCacheDir</FONT></SPAN><SPAN>().listFiles();&nbsp;&nbsp;</SPAN></SPAN></LI>
+<LI class=alt><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(files&nbsp;!=&nbsp;null){&nbsp;&nbsp;</SPAN></LI>
+<LI class=""><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(File&nbsp;f&nbsp;:&nbsp;files&nbsp;){&nbsp;&nbsp;</SPAN></LI>
+<LI class=alt><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;f.delete();&nbsp;&nbsp;</SPAN></LI>
+<LI class=""><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</SPAN></LI>
+<LI class=alt><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</SPAN></LI>
+<LI class=""><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Log.i(TAG,&nbsp;"service&nbsp;destroy");&nbsp;&nbsp;</SPAN></LI>
+<LI class=alt><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;super.onDestroy();&nbsp;&nbsp;</SPAN></LI>
+<LI class=""><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</SPAN></LI>
+<LI class=alt><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</SPAN></LI>
+<LI class=""><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;private&nbsp;class&nbsp;TelListener&nbsp;extends&nbsp;PhoneStateListener{&nbsp;&nbsp;</SPAN></LI>
+<LI class=alt><SPAN>&nbsp;&nbsp;</SPAN></LI>
+<LI class=""><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;private&nbsp;MediaRecorder&nbsp;recorder;&nbsp;&nbsp;</SPAN></LI>
+<LI class=alt><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;private&nbsp;String&nbsp;mobile;&nbsp;&nbsp;</SPAN></LI>
+<LI class=""><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;private&nbsp;File&nbsp;audioFile;&nbsp;&nbsp;</SPAN></LI>
+<LI class=alt><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;private&nbsp;boolean&nbsp;record;&nbsp;&nbsp;</SPAN></LI>
+<LI class=""><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</SPAN></LI>
+<LI class=alt><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@Override&nbsp;&nbsp;</SPAN></LI>
+<LI class=""><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;onCallStateChanged(int&nbsp;state,&nbsp;String&nbsp;incomingNumber)&nbsp;{&nbsp;&nbsp;</SPAN></LI>
+<LI class=alt><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;try{&nbsp;&nbsp;</SPAN></LI>
+<LI class=""><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;switch&nbsp;(state)&nbsp;{&nbsp;&nbsp;</SPAN></LI>
+<LI class=alt><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;TelephonyManager.CALL_STATE_IDLE:&nbsp;//无任何状态时&nbsp;&nbsp;</SPAN></LI>
+<LI class=""><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(record){&nbsp;&nbsp;</SPAN></LI>
+<LI class=alt><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;recorder.stop();&nbsp;//停止刻录&nbsp;&nbsp;</SPAN></LI>
+<LI class=""><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;recorder.release();&nbsp;//释放资源&nbsp;&nbsp;</SPAN></LI>
+<LI class=alt><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</SPAN><SPAN class=attribute><FONT color=#ff0000>record</FONT></SPAN><SPAN>&nbsp;=&nbsp;</SPAN><SPAN class=attribute-value><FONT color=#0000ff>false</FONT></SPAN><SPAN>;&nbsp;&nbsp;</SPAN></SPAN></LI>
+<LI class=""><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;new&nbsp;Thread(new&nbsp;UploadTask()).start();&nbsp;&nbsp;//将录音文件上传&nbsp;&nbsp;</SPAN></LI>
+<LI class=alt><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</SPAN></LI>
+<LI class=""><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;&nbsp;&nbsp;</SPAN></LI>
+<LI class=alt><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;TelephonyManager.CALL_STATE_OFFHOOK:&nbsp;//接起电话时&nbsp;&nbsp;</SPAN></LI>
+<LI class=""><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</SPAN><SPAN class=attribute><FONT color=#ff0000>recorder</FONT></SPAN><SPAN>&nbsp;=&nbsp;</SPAN><SPAN class=attribute-value><FONT color=#0000ff>new</FONT></SPAN><SPAN>&nbsp;MediaRecorder();&nbsp;&nbsp;</SPAN></SPAN></LI>
+<LI class=alt><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;recorder.setAudioSource(MediaRecorder.AudioSource.MIC);//从麦克风采集声音&nbsp;&nbsp;</SPAN></LI>
+<LI class=""><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);&nbsp;//内容输出格式&nbsp;&nbsp;</SPAN></LI>
+<LI class=alt><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);//音频编码方式&nbsp;&nbsp;</SPAN></LI>
+<LI class=""><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</SPAN><SPAN class=attribute><FONT color=#ff0000>audioFile</FONT></SPAN><SPAN>&nbsp;=&nbsp;</SPAN><SPAN class=attribute-value><FONT color=#0000ff>new</FONT></SPAN><SPAN>&nbsp;File(getCacheDir(),&nbsp;incomingNumber&nbsp;+&nbsp;"_"&nbsp;+&nbsp;System.currentTimeMillis()&nbsp;+&nbsp;".3gp");&nbsp;&nbsp;</SPAN></SPAN></LI>
+<LI class=alt><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;recorder.setOutputFile(audioFile.getAbsolutePath());&nbsp;&nbsp;</SPAN></LI>
+<LI class=""><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;recorder.prepare();&nbsp;//预期准备&nbsp;&nbsp;</SPAN></LI>
+<LI class=alt><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;recorder.start();&nbsp;//开始刻录&nbsp;&nbsp;</SPAN></LI>
+<LI class=""><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</SPAN><SPAN class=attribute><FONT color=#ff0000>record</FONT></SPAN><SPAN>&nbsp;=&nbsp;</SPAN><SPAN class=attribute-value><FONT color=#0000ff>true</FONT></SPAN><SPAN>;&nbsp;&nbsp;</SPAN></SPAN></LI>
+<LI class=alt><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Log.i(TAG,&nbsp;"start&nbsp;record");&nbsp;&nbsp;</SPAN></LI>
+<LI class=""><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;&nbsp;&nbsp;</SPAN></LI>
+<LI class=alt><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;TelephonyManager.CALL_STATE_RINGING:&nbsp;//电话进来时&nbsp;&nbsp;</SPAN></LI>
+<LI class=""><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</SPAN><SPAN class=attribute><FONT color=#ff0000>mobile</FONT></SPAN><SPAN>&nbsp;=&nbsp;</SPAN><SPAN class=attribute-value><FONT color=#0000ff>incomingNumber</FONT></SPAN><SPAN>;&nbsp;&nbsp;</SPAN></SPAN></LI>
+<LI class=alt><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Log.i(TAG,&nbsp;incomingNumber&nbsp;+&nbsp;"&nbsp;coming");&nbsp;&nbsp;</SPAN></LI>
+<LI class=""><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;&nbsp;&nbsp;</SPAN></LI>
+<LI class=alt><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</SPAN></LI>
+<LI class=""><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;default:&nbsp;&nbsp;</SPAN></LI>
+<LI class=alt><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;&nbsp;&nbsp;</SPAN></LI>
+<LI class=""><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</SPAN></LI>
+<LI class=alt><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</SPAN></LI>
+<LI class=""><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}catch&nbsp;(Exception&nbsp;e)&nbsp;{&nbsp;&nbsp;</SPAN></LI>
+<LI class=alt><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;e.printStackTrace();&nbsp;&nbsp;</SPAN></LI>
+<LI class=""><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</SPAN></LI>
+<LI class=alt><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;super.onCallStateChanged(state,&nbsp;incomingNumber);&nbsp;&nbsp;</SPAN></LI>
+<LI class=""><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</SPAN></LI>
+<LI class=alt><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</SPAN></LI>
+<LI class=""><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</SPAN></LI>
+<LI class=alt><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</SPAN></LI>
+<LI class=""><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;private&nbsp;final&nbsp;class&nbsp;UploadTask&nbsp;implements&nbsp;Runnable{&nbsp;&nbsp;</SPAN></LI>
+<LI class=alt><SPAN>&nbsp;&nbsp;</SPAN></LI>
+<LI class=""><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@Override&nbsp;&nbsp;</SPAN></LI>
+<LI class=alt><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;run()&nbsp;{&nbsp;&nbsp;</SPAN></LI>
+<LI class=""><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//上传文件操作&nbsp;&nbsp;</SPAN></LI>
+<LI class=alt><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</SPAN></LI>
+<LI class=""><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</SPAN></LI>
+<LI class=alt><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</SPAN></LI>
+<LI class=""><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</SPAN></LI>
+<LI class=alt><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</SPAN></LI>
+<LI class=""><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;@Override&nbsp;&nbsp;</SPAN></LI>
+<LI class=alt><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;IBinder&nbsp;onBind(Intent&nbsp;intent)&nbsp;{&nbsp;&nbsp;</SPAN></LI>
+<LI class=""><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;TODO&nbsp;Auto-generated&nbsp;method&nbsp;stub&nbsp;&nbsp;</SPAN></LI>
+<LI class=alt><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;null;&nbsp;&nbsp;</SPAN></LI>
+<LI class=""><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</SPAN></LI>
+<LI class=alt><SPAN>&nbsp;&nbsp;</SPAN></LI>
+<LI class=""><SPAN>}&nbsp;&nbsp;</SPAN></LI></OL></DIV>
+<P>AndroidManifest.xml</P>
+<DIV class="dp-highlighter bg_html">
+<OL class=dp-xml>
+<LI class=alt><SPAN><STRONG><FONT color=#993300><SPAN class=tag>&lt;?</SPAN><SPAN class=tag-name>xml</SPAN></FONT></STRONG><SPAN>&nbsp;</SPAN><SPAN class=attribute><FONT color=#ff0000>version</FONT></SPAN><SPAN>=</SPAN><SPAN class=attribute-value><FONT color=#0000ff>"1.0"</FONT></SPAN><SPAN>&nbsp;</SPAN><SPAN class=attribute><FONT color=#ff0000>encoding</FONT></SPAN><SPAN>=</SPAN><SPAN class=attribute-value><FONT color=#0000ff>"utf-8"</FONT></SPAN><SPAN class=tag><STRONG><FONT color=#993300>?&gt;</FONT></STRONG></SPAN><SPAN>&nbsp;&nbsp;</SPAN></SPAN></LI>
+<LI class=""><SPAN></SPAN><STRONG><FONT color=#993300><SPAN class=tag>&lt;</SPAN><SPAN class=tag-name>manifest</SPAN></FONT></STRONG><SPAN>&nbsp;</SPAN><SPAN class=attribute><FONT color=#ff0000>xmlns:android</FONT></SPAN><SPAN>=</SPAN><SPAN class=attribute-value><FONT color=#0000ff>"http://schemas.android.com/apk/res/android"</FONT></SPAN><SPAN>&nbsp;&nbsp;</SPAN></SPAN></LI>
+<LI class=alt><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</SPAN><SPAN class=attribute><FONT color=#ff0000>package</FONT></SPAN><SPAN>=</SPAN><SPAN class=attribute-value><FONT color=#0000ff>"com.king.phone"</FONT></SPAN><SPAN>&nbsp;&nbsp;</SPAN></SPAN></LI>
+<LI class=""><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</SPAN><SPAN class=attribute><FONT color=#ff0000>android:versionCode</FONT></SPAN><SPAN>=</SPAN><SPAN class=attribute-value><FONT color=#0000ff>"1"</FONT></SPAN><SPAN>&nbsp;&nbsp;</SPAN></SPAN></LI>
+<LI class=alt><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</SPAN><SPAN class=attribute><FONT color=#ff0000>android:versionName</FONT></SPAN><SPAN>=</SPAN><SPAN class=attribute-value><FONT color=#0000ff>"1.0"</FONT></SPAN><SPAN class=tag><STRONG><FONT color=#993300>&gt;</FONT></STRONG></SPAN><SPAN>&nbsp;&nbsp;</SPAN></SPAN></LI>
+<LI class=""><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;</SPAN><STRONG><FONT color=#993300><SPAN class=tag>&lt;</SPAN><SPAN class=tag-name>uses-sdk</SPAN></FONT></STRONG><SPAN>&nbsp;</SPAN><SPAN class=attribute><FONT color=#ff0000>android:minSdkVersion</FONT></SPAN><SPAN>=</SPAN><SPAN class=attribute-value><FONT color=#0000ff>"8"</FONT></SPAN><SPAN>&nbsp;</SPAN><SPAN class=tag><STRONG><FONT color=#993300>/&gt;</FONT></STRONG></SPAN><SPAN>&nbsp;&nbsp;</SPAN></SPAN></LI>
+<LI class=alt><SPAN>&nbsp;&nbsp;</SPAN></LI>
+<LI class=""><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;</SPAN><STRONG><FONT color=#993300><SPAN class=tag>&lt;</SPAN><SPAN class=tag-name>application</SPAN></FONT></STRONG><SPAN>&nbsp;</SPAN><SPAN class=attribute><FONT color=#ff0000>android:icon</FONT></SPAN><SPAN>=</SPAN><SPAN class=attribute-value><FONT color=#0000ff>"@drawable/icon"</FONT></SPAN><SPAN>&nbsp;</SPAN><SPAN class=attribute><FONT color=#ff0000>android:label</FONT></SPAN><SPAN>=</SPAN><SPAN class=attribute-value><FONT color=#0000ff>"@string/app_name"</FONT></SPAN><SPAN class=tag><STRONG><FONT color=#993300>&gt;</FONT></STRONG></SPAN><SPAN>&nbsp;&nbsp;</SPAN></SPAN></LI>
+<LI class=alt><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</SPAN><STRONG><FONT color=#993300><SPAN class=tag>&lt;</SPAN><SPAN class=tag-name>service</SPAN></FONT></STRONG><SPAN>&nbsp;</SPAN><SPAN class=attribute><FONT color=#ff0000>android:name</FONT></SPAN><SPAN>=</SPAN><SPAN class=attribute-value><FONT color=#0000ff>".PhoneListenService"</FONT></SPAN><STRONG><FONT color=#993300><SPAN class=tag>&gt;</SPAN><SPAN class=tag>&lt;/</SPAN><SPAN class=tag-name>service</SPAN><SPAN class=tag>&gt;</SPAN></FONT></STRONG><SPAN>&nbsp;&nbsp;</SPAN></SPAN></LI>
+<LI class=""><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</SPAN><STRONG><FONT color=#993300><SPAN class=tag>&lt;</SPAN><SPAN class=tag-name>receiver</SPAN></FONT></STRONG><SPAN>&nbsp;</SPAN><SPAN class=attribute><FONT color=#ff0000>android:name</FONT></SPAN><SPAN>=</SPAN><SPAN class=attribute-value><FONT color=#0000ff>".BootBroadcastReceiver"</FONT></SPAN><SPAN class=tag><STRONG><FONT color=#993300>&gt;</FONT></STRONG></SPAN><SPAN>&nbsp;&nbsp;</SPAN></SPAN></LI>
+<LI class=alt><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</SPAN><STRONG><FONT color=#993300><SPAN class=tag>&lt;</SPAN><SPAN class=tag-name>intent-filter</SPAN><SPAN class=tag>&gt;</SPAN></FONT></STRONG><SPAN>&nbsp;&nbsp;</SPAN></SPAN></LI>
+<LI class=""><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</SPAN><STRONG><FONT color=#993300><SPAN class=tag>&lt;</SPAN><SPAN class=tag-name>action</SPAN></FONT></STRONG><SPAN>&nbsp;</SPAN><SPAN class=attribute><FONT color=#ff0000>android:name</FONT></SPAN><SPAN>=</SPAN><SPAN class=attribute-value><FONT color=#0000ff>"android.intent.action.BOOT_COMPLETED"</FONT></SPAN><SPAN class=tag><STRONG><FONT color=#993300>/&gt;</FONT></STRONG></SPAN><SPAN>&nbsp;&nbsp;</SPAN></SPAN></LI>
+<LI class=alt><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</SPAN><STRONG><FONT color=#993300><SPAN class=tag>&lt;/</SPAN><SPAN class=tag-name>intent-filter</SPAN><SPAN class=tag>&gt;</SPAN></FONT></STRONG><SPAN>&nbsp;&nbsp;</SPAN></SPAN></LI>
+<LI class=""><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</SPAN><STRONG><FONT color=#993300><SPAN class=tag>&lt;/</SPAN><SPAN class=tag-name>receiver</SPAN><SPAN class=tag>&gt;</SPAN></FONT></STRONG><SPAN>&nbsp;&nbsp;</SPAN></SPAN></LI>
+<LI class=alt><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</SPAN></LI>
+<LI class=""><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;</SPAN><STRONG><FONT color=#993300><SPAN class=tag>&lt;/</SPAN><SPAN class=tag-name>application</SPAN><SPAN class=tag>&gt;</SPAN></FONT></STRONG><SPAN>&nbsp;&nbsp;</SPAN></SPAN></LI>
+<LI class=alt><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;</SPAN><STRONG><FONT color=#993300><SPAN class=tag>&lt;</SPAN><SPAN class=tag-name>uses-permission</SPAN></FONT></STRONG><SPAN>&nbsp;</SPAN><SPAN class=attribute><FONT color=#ff0000>android:name</FONT></SPAN><SPAN>=</SPAN><SPAN class=attribute-value><FONT color=#0000ff>"android.permission.RECORD_AUDIO"</FONT></SPAN><SPAN class=tag><STRONG><FONT color=#993300>/&gt;</FONT></STRONG></SPAN><SPAN>&nbsp;&nbsp;</SPAN></SPAN></LI>
+<LI class=""><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;</SPAN><STRONG><FONT color=#993300><SPAN class=tag>&lt;</SPAN><SPAN class=tag-name>uses-permission</SPAN></FONT></STRONG><SPAN>&nbsp;&nbsp;</SPAN><SPAN class=attribute><FONT color=#ff0000>android:name</FONT></SPAN><SPAN>=</SPAN><SPAN class=attribute-value><FONT color=#0000ff>"android.permission.INTERNET"</FONT></SPAN><SPAN class=tag><STRONG><FONT color=#993300>/&gt;</FONT></STRONG></SPAN><SPAN>&nbsp;&nbsp;</SPAN></SPAN></LI>
+<LI class=alt><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;</SPAN><STRONG><FONT color=#993300><SPAN class=tag>&lt;</SPAN><SPAN class=tag-name>uses-permission</SPAN></FONT></STRONG><SPAN>&nbsp;</SPAN><SPAN class=attribute><FONT color=#ff0000>android:name</FONT></SPAN><SPAN>=</SPAN><SPAN class=attribute-value><FONT color=#0000ff>"android.permission.READ_PHONE_STATE"</FONT></SPAN><SPAN class=tag><STRONG><FONT color=#993300>/&gt;</FONT></STRONG></SPAN><SPAN>&nbsp;&nbsp;</SPAN></SPAN></LI>
+<LI class=""><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;</SPAN><STRONG><FONT color=#993300><SPAN class=tag>&lt;</SPAN><SPAN class=tag-name>uses-permission</SPAN></FONT></STRONG><SPAN>&nbsp;</SPAN><SPAN class=attribute><FONT color=#ff0000>android:name</FONT></SPAN><SPAN>=</SPAN><SPAN class=attribute-value><FONT color=#0000ff>"android.permission.RECEIVE_BOOT_COMPLETED"</FONT></SPAN><SPAN class=tag><STRONG><FONT color=#993300>/&gt;</FONT></STRONG></SPAN><SPAN>&nbsp;&nbsp;</SPAN></SPAN></LI>
+<LI class=alt><SPAN>&nbsp;&nbsp;</SPAN></LI>
+<LI class=""><SPAN></SPAN><STRONG><FONT color=#993300><SPAN class=tag>&lt;/</SPAN><SPAN class=tag-name>manifest</SPAN><SPAN class=tag>&gt;</SPAN></FONT></STRONG><SPAN>&nbsp;&nbsp;</SPAN></SPAN></LI></OL></DIV><a href="http://www.linuxidc.com" target="_blank"><img src="/linuxfile/logo.gif" alt="linux" width="15" height="17" /></div>
+<div class="linux301"><script type="text/javascript" src="/linuxfile/linux301.js"></script></div>
+<div class="linux3"><script type="text/javascript" src="/linuxfile/linux3.js"></script></div>
+<div class="linux302"><script type="text/javascript" src="/linuxfile/linux302.js"></script></div>		
+			
+			
+		</div>
+		<div style="padding:0 15px">
+			<ul id="digg" class="digg">
+				<li class="digg1">0</li>
+				<li class="digg2"><a href="###" onclick="iwms.diggIt(this,iwms.aId)">顶一下</a></li>
+			</ul>	
+		</div>
+<div class="linuxfx"><script type="text/javascript" language="javaScript" src="/linuxfile/fx.js"></script></div>	
+<div class="linux8"><script type="text/javascript" language="javaScript" src="/linuxfile/linux8.js"></script></div>
+<div class="linux801"><script type="text/javascript" language="javaScript" src="/linuxfile/linux801.js"></script></div>
+		<div class="nearNews">
+			<div class="prevNews"><a href="../../Linux/2011-10/45189.htm">观摩Android系统源码 +闹钟-1</a></div>
+			<div class="nextNews"><a href="../../Linux/2011-10/45191.htm">Android广播和短信广播详解----使用广播接收者窃听短信</a></div>
+		</div>
+	</div>
+	</div>
+	<div class="bl"></div>
+	<div class="br"></div>
+	<div class="bm"></div>
+	</div>
+	
+	<div class="mframe mR">
+	<div class="tl"></div>
+	<div class="tr"></div>
+	<div class="tm">
+		<span class="tt">相关资讯</span> &nbsp; &nbsp; &nbsp;
+		<a href="../../search.aspx?where=nkey&amp;keyword=8994" target="_blank">Android基础教程</a>&nbsp; <a href="../../search.aspx?where=nkey&amp;keyword=8995" target="_blank">Android开发教程</a>&nbsp; 
+	</div>
+	<div class="wrapper">
+	<div class="ml"></div>
+	<div class="mr"></div>
+	<div class="mm">
+		<table width='100%'><tr><td width='50%' valign='top'><ul class='nl'><li><a href="../../Linux/2013-03/81471.htm"  target="_blank"  title="用IntelliJ IDEA开发Android程序图文教程">用IntelliJ IDEA开发Android程序图</a>&nbsp; <span class="gray">(03/23/2013 10:22:55)</span></li>
+<li><a href="../../Linux/2013-02/80112.htm"  target="_blank"  title="在 Android 中如何放置text views和image view?">在 Android 中如何放置text views</a>&nbsp; <span class="gray">(02/28/2013 10:32:41)</span></li>
+<li><a href="../../Linux/2013-02/79502.htm"  target="_blank" >Android--ListView滚动条样式</a>&nbsp; <span class="gray">(02/17/2013 11:15:44)</span></li>
+</ul></td><td width='50%' valign='top'><ul class='nl'><li><a href="../../Linux/2013-03/80239.htm"  target="_blank" >Android广播事件处理基础教程</a>&nbsp; <span class="gray">(03/02/2013 09:39:00)</span></li>
+<li><a href="../../Linux/2013-02/79503.htm"  target="_blank" >Android中保存并设置ListView位置</a>&nbsp; <span class="gray">(02/17/2013 11:18:45)</span></li>
+<li><a href="../../Linux/2013-02/79501.htm"  target="_blank"  title="Android--ContentProvider跨程序访问数据">Android--ContentProvider跨程序访</a>&nbsp; <span class="gray">(02/17/2013 11:13:52)</span></li>
+</ul></td></tr></table>
+	</div>
+	</div>
+	<div class="bl"></div>
+	<div class="br"></div>
+	<div class="bm"></div>
+	</div>
+
+	<div class="mframe mR">
+	<div class="tl"></div>
+	<div class="tr"></div>
+	<div class="tm">
+		<span class="tt">图片资讯</span> &nbsp; &nbsp; &nbsp;
+	</div>
+	<div class="wrapper">
+	<div class="ml"></div>
+	<div class="mr"></div>
+	<div class="mm">
+<div class="imgList"><ul><li style="width:25%"><a href="../../Linux/2013-03/81471.htm"  target="_blank"  title="用IntelliJ IDEA开发Android程序图文教程"><img src="../../upload/2013_03/130323103751201t.jpg" alt="用IntelliJ IDEA开发Android程序图文教程" width="120" height="90"/>用IntelliJ IDEA开发</a></li><li style="width:25%"><a href="../../Linux/2013-03/80239.htm"  target="_blank"  title="Android广播事件处理基础教程"><img src="../../upload/2013_03/130302094277161t.jpg" alt="Android广播事件处理基础教程" width="120" height="90"/>Android广播事件处理</a></li><li style="width:25%"><a href="../../Linux/2013-02/79502.htm"  target="_blank"  title="Android--ListView滚动条样式"><img src="../../upload/2013_02/130217111842521t.jpg" alt="Android--ListView滚动条样式" width="120" height="90"/>Android--ListView滚</a></li><li style="width:25%"><a href="../../Linux/2013-02/79500.htm"  target="_blank"  title="Android--GestureOverlayView,手势识别"><img src="../../upload/2013_02/130217111378391t.jpg" alt="Android--GestureOverlayView,手势识别" width="120" height="90"/>Android--GestureOver</a></li><li style="width:25%"><a href="../../Linux/2013-02/79499.htm"  target="_blank"  title="Android--通过ActivityGroup实现Tab的选卡效果"><img src="../../upload/2013_02/130217111098631t.jpg" alt="Android--通过ActivityGroup实现Tab的选卡效果" width="120" height="90"/>Android--通过</a></li><li style="width:25%"><a href="../../Linux/2013-02/79496.htm"  target="_blank"  title="Android开发教程：使用include调用布局"><img src="../../upload/2013_02/130217110562641t.jpg" alt="Android开发教程：使用include调用布局" width="120" height="90"/>Android开发教程：使</a></li><li style="width:25%"><a href="../../Linux/2013-02/79495.htm"  target="_blank"  title="Android--取得MD5指纹，取得MapKey"><img src="../../upload/2013_02/130217110395551t.jpg" alt="Android--取得MD5指纹，取得MapKey" width="120" height="90"/>Android--取得MD5指纹</a></li><li style="width:25%"><a href="../../Linux/2013-02/79494.htm"  target="_blank"  title="Android--MapView.第一个简单的MapView"><img src="../../upload/2013_02/130217105918831t.jpg" alt="Android--MapView.第一个简单的MapView" width="120" height="90"/>Android--MapView.第</a></li></ul></div>
+	</div>
+	</div>
+	<div class="bl"></div>
+	<div class="br"></div>
+	<div class="bm"></div>
+	</div>
+	
+	
+	<div class="mframe mR">
+	<div class="tl"></div>
+	<div class="tr"></div>
+	<div class="tm">
+		<span class="tt">本文评论</span>
+		 	　　<a href="../../remark.aspx?id=45190" target="_blank">查看全部评论</a> <span class="gray">(0)</span>
+	</div>
+	<div class="wrapper">
+	<div class="ml"></div>
+	<div class="mr"></div>
+	<div class="mm">
+		<table width="100%" style="margin:6px">		
+		<tr><td width="100%">
+			<form action="" name="fmRemarkSt" onsubmit="return remark.post(this);">
+			<input type="hidden" value="1" name="face"/>
+			表情： <img src="../../pic/b.gif" alt="表情" class="face1" style="cursor:pointer;vertical-align:middle" onclick="remark.dispFace(this)" onmouseout="remark.hideFace()"/>
+			姓名： <input type="text" name="username" value="" maxlength="15" style="width:60px" class="inputbg"/>
+			<input type="checkbox" id="rmAnonymitySt" onclick="remark.anony(this)"/><label for="rmAnonymitySt">匿名</label>
+			字数 <input type="text" id="bodyLen" size="3" readonly="readonly" style="border-width:0;background:transparent;vertical-align:middle" value="0"/>
+			<br/>
+			<textarea name="body" cols="40" rows="4" onkeydown="remark.dispLen(this)" onkeyup="remark.handle(event,this);remark.dispLen(this)" style="width:40em;height:100px;margin:3px 0;overflow-y:auto"></textarea>
+				<br/>
+		　　　<input type="checkbox" checked="checked" id="rmAgreeSt"/><label for="rmAgreeSt">同意评论声明</label>
+		　　　<button type="submit" style="width:50px">发表</button>
+			</form>
+		</td></tr>
+		<tr><td width="100%">
+			评论声明
+			<ul style="list-style-type:square;margin:5px 0 0 1em;padding:0">
+			<li>尊重网上道德，遵守中华人民共和国的各项有关法律法规</li>
+			<li>承担一切因您的行为而直接或间接导致的民事或刑事法律责任</li>
+			<li>本站管理人员有权保留或删除其管辖留言中的任意内容</li>
+			<li>本站有权在网站内转载或引用您的评论</li>
+			<li>参与本评论即表明您已经阅读并接受上述条款</li>
+			</ul>
+		</td></tr>
+		</table>
+		<script type="text/javascript" src="../../inc/remark.js"></script>
+		<script type="text/javascript">
+			remark.maxSize=500;
+			remark.minSize=2;
+			remark.sourceEle=$(document.fmRemarkSt).find("button").get(0);
+			iwms.vCode="D2BDA41E";
+			iwms.user.name.length==0 ? $i("rmAnonymitySt").click() : $i("rmAnonymitySt").form.username.value=iwms.user.name;
+		</script>
+		
+		<div class="reCont" id="reContainer"></div>
+	</div>
+	</div>
+	<div class="bl"></div>
+	<div class="br"></div>
+	<div class="bm"></div>
+	</div>
+	
+</td><td width="300" valign="top">
+<div class="linux901"><script type="text/javascript" language="javaScript" src="/linuxfile/linux901.js"></script></div>
+<div class="linux902"><script type="text/javascript" language="javaScript" src="/linuxfile/linux902.js"></script></div>
+<div class="linux903"><script type="text/javascript" language="javaScript" src="/linuxfile/linux903.js"></script></div>
+<div class="linux905"><script type="text/javascript" language="javaScript" src="/linuxfile/linux905.js"></script></div>
+	
+	<div class="lframe">
+	<div class="tl"></div>
+	<div class="tr"></div>
+	<div class="tm">
+		<span class="tt">最新资讯</span>
+	</div>
+	<div class="wrapper">
+	<div class="ml"></div>
+	<div class="mr"></div>
+	<div class="mm">
+		<ul class="nl">
+<li><a href="../../Linux/2014-02/96102.htm" target="_blank">MySQL内存使用以及优化中需要的几点注意</a></li>
+<li><a href="../../Linux/2014-02/96101.htm" target="_blank">Steam主机最大的问题在于基于Linux的操作系统</a></li>
+<li><a href="../../Linux/2014-02/96100.htm" target="_blank">在Arch上使用Syslinux替代GRUB</a></li>
+<li><a href="../../Linux/2014-02/96099.htm" target="_blank">HAproxy-1.5-dev22 发布</a></li>
+<li><a href="../../Linux/2014-02/96098.htm" target="_blank">Android回调机制总结</a></li>
+<li><a href="../../Linux/2014-02/96097.htm" target="_blank">Golang cgo编程 [] string 转 C语言 char**</a></li>
+<li><a href="../../Linux/2014-02/96096.htm" target="_blank">Golang 模拟Java超类型(abstract class)的实现</a></li>
+<li><a href="../../Linux/2014-02/96095.htm" target="_blank">Golang 强制类型转换</a></li>
+<li><a href="../../Linux/2014-02/96094.htm" target="_blank">Golang 单例模式 singleton pattern</a></li>
+<li><a href="../../Linux/2014-02/96093.htm" target="_blank">Golang二分查找算法的简单实现</a></li>
+</ul>
+	</div>
+	</div>
+	<div class="bl"></div>
+	<div class="br"></div>
+	<div class="bm"></div>
+	</div>
+
+	<div class="lframe">
+	<div class="tl"></div>
+	<div class="tr"></div>
+	<div class="tm">
+		<span class="tt">本周热门</span>
+	</div>
+	<div class="wrapper">
+	<div class="ml"></div>
+	<div class="mr"></div>
+	<div class="mm">
+		<ul class="nl">
+<li><a href="../../Linux/2012-10/72627.htm" target="_blank">Node.js零起点开发教程</a></li>
+<li><a href="../../Linux/2012-02/55500.htm" target="_blank" title="Android的onCreateOptionsMenu()创建菜单Menu详解">Android的onCreateOptionsMenu()创建菜单Menu详</a></li>
+<li><a href="../../Linux/2011-02/32603.htm" target="_blank">Android SD卡路径问题以及如何获取SDCard 内存</a></li>
+<li><a href="../../Linux/2011-10/44305.htm" target="_blank" title="Android开发：多点触控测试代码 PointerLocation">Android开发：多点触控测试代码 PointerLocatio</a></li>
+<li><a href="../../Linux/2011-07/39271.htm" target="_blank">Android Binder设计与实现 – 设计篇</a></li>
+<li><a href="../../Linux/2007-06/4767.htm" target="_blank">Linux shell脚本全面学习</a></li>
+<li><a href="../../Linux/2011-06/37739.htm" target="_blank">Ubuntu 10.04下编译OpenWrt完全新手教程</a></li>
+<li><a href="../../Linux/2011-05/35839.htm" target="_blank">Linux驱动工程师成长之路</a></li>
+<li><a href="../../Linux/2012-11/74422.htm" target="_blank">Android中实现下拉刷新</a></li>
+<li><a href="../../Linux/2012-11/74910.htm" target="_blank">Android之收音机UI实现</a></li>
+</ul>
+	</div>
+	</div>
+	<div class="bl"></div>
+	<div class="br"></div>
+	<div class="bm"></div>
+	</div>
+	<div class="linuxy9"><script type="text/javascript" language="javaScript" src="/linuxfile/y9.js"></script></div>	
+</td></tr>
+</table>
+<div class="linux906"><script type="text/javascript" language="javaScript" src="/linuxfile/linux906.js"></script></div>
+<div id="footer">
+<a href="http://www.linuxidc.com/aboutus.htm">Linux公社简介</a> - <a href="http://www.linuxidc.com/adsense.htm">广告服务</a> - <a href="http://www.linuxidc.com/sitemap.aspx">网站地图</a> - <a href="http://www.linuxidc.com/help.htm">帮助信息</a> - <a href="http://www.linuxidc.com/contactus.htm">联系我们</a><br />本站（LinuxIDC）所刊载文章不代表同意其说法或描述，仅为提供更多信息，也不构成任何建议。<br /><script type="text/javascript" language="javaScript" src="/linuxfile/qq.js"></script><br />
+<script type="text/javascript" language="javaScript" src="/linuxfile/foot.js"></script><br />Copyright &copy; 2006-2011　<a href="http://www.linuxidc.com/">Linux公社</a>　All rights reserved 浙ICP备06018118号
+	<script type="text/javascript">iwms.aId=45190;$(function(){iwms.imgCont=$i('content');iwms.imgResize();InitContStyle();iwms.getVars();})</script>
+	
+</div>
+</div>
+<script type="text/javascript" language="javaScript" src="/linuxren/linuxren1.js"></script>
+<script type="text/javascript" language="javaScript" src="/linuxren/linuxren2.js"></script>
+<script type="text/javascript" language="javaScript" src="/linuxren/linuxren3.js"></script>
+</body>
+</html>

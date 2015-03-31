@@ -1,0 +1,195 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="zh-cn">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>android 通话录音实现 - jxgxy - 博客园</title>
+<link type="text/css" rel="stylesheet" href="/bundles/blog-common.css?v=RFWbSMVn474Meo5c6rKa1DH_M4ldFPuI9Jah-EA-L5Q1"/>
+<link id="MainCss" type="text/css" rel="stylesheet" href="/skins/AnotherEon001/bundle-AnotherEon001.css?v=_m-jLtl6JZTPbqa4gXDwru2bF6vsLtluIVqvc1OQ0ko1"/>
+<link title="RSS" type="application/rss+xml" rel="alternate" href="http://www.cnblogs.com/jxgxy/rss"/>
+<link title="RSD" type="application/rsd+xml" rel="EditURI" href="http://www.cnblogs.com/jxgxy/rsd.xml"/>
+<link type="application/wlwmanifest+xml" rel="wlwmanifest" href="http://www.cnblogs.com/jxgxy/wlwmanifest.xml"/>
+<script src="http://common.cnblogs.com/script/jquery.js" type="text/javascript"></script>  
+<script type="text/javascript">var currentBlogApp = 'jxgxy', cb_enable_mathjax=false;</script>
+<script src="/bundles/blog-common.js?v=NRIlPIHMlVEgoqJZIuk9OQtjtZjNFcz_ov8kYhFFdoM1" type="text/javascript"></script>
+</head>
+<body>
+<a name="top"></a>
+
+<div id="wrapper">
+<div id="header">
+
+<div id="top">
+<h1><a id="Header1_HeaderTitle" class="headermaintitle" href="http://www.cnblogs.com/jxgxy/">Eboy's blog</a></h1>
+<div id="subtitle"><font color="orange">记录学习过程中的点点滴滴，是喜欢、不是职业，记性不好，特别需要这么一个博客。</font>
+<br>
+<font color="yellow">交流QQ：84461376</font></div>
+</div>
+<div id="sub">
+<div class="BlogStats">随笔 - 260, 文章 - 0, 评论 - 62, 引用 - 1</div>
+</div>
+
+
+
+</div>
+<div id="main_container">
+<div id="main_content">
+<div id="content">
+	
+
+	<div class="post">
+		<h2>
+			<a id="cb_post_title_url" href="http://www.cnblogs.com/jxgxy/archive/2012/08/13/2636155.html">android 通话录音实现</a>
+		</h2>
+		<div class="postbody">
+		<div id="cnblogs_post_body"><p>因受系统限制，只能录自已麦的声音，录不到对方的声音，可能需要改内核才能实现双向录音；</p><p>接通电话和挂断电话时，震动一下；</p><p>使用广播接收者实现自启动；&nbsp;</p><p>&nbsp;</p><p>服务代码：</p><p>&nbsp;</p><div class="cnblogs_code"><div><span style="color: #0000FF;">package</span>&nbsp;com.eboy.phoneListener;<br /><br /><span style="color: #0000FF;">import</span>&nbsp;java.io.File;<br /><br /><span style="color: #0000FF;">import</span>&nbsp;android.app.Service;<br /><span style="color: #0000FF;">import</span>&nbsp;android.content.Context;<br /><span style="color: #0000FF;">import</span>&nbsp;android.content.Intent;<br /><span style="color: #0000FF;">import</span>&nbsp;android.media.MediaRecorder;<br /><span style="color: #0000FF;">import</span>&nbsp;android.os.Environment;<br /><span style="color: #0000FF;">import</span>&nbsp;android.os.IBinder;<br /><span style="color: #0000FF;">import</span>&nbsp;android.os.Vibrator;<br /><span style="color: #0000FF;">import</span>&nbsp;android.telephony.PhoneStateListener;<br /><span style="color: #0000FF;">import</span>&nbsp;android.telephony.TelephonyManager;<br /><span style="color: #0000FF;">import</span>&nbsp;android.widget.Toast;<br /><br /><span style="color: #0000FF;">public</span>&nbsp;<span style="color: #0000FF;">class</span>&nbsp;phoneService&nbsp;<span style="color: #0000FF;">extends</span>&nbsp;Service&nbsp;{<br /><br />&nbsp;&nbsp;&nbsp;&nbsp;@Override<br />&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #0000FF;">public</span>&nbsp;IBinder&nbsp;onBind(Intent&nbsp;arg0)&nbsp;{<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #008000;">//</span><span style="color: #008000;">&nbsp;TODO&nbsp;Auto-generated&nbsp;method&nbsp;stub</span><span style="color: #008000;"><br /></span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #0000FF;">return</span>&nbsp;<span style="color: #0000FF;">null</span>;<br />&nbsp;&nbsp;&nbsp;&nbsp;}<br /><br />&nbsp;&nbsp;&nbsp;&nbsp;@Override<br />&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #0000FF;">public</span>&nbsp;<span style="color: #0000FF;">void</span>&nbsp;onCreate()&nbsp;{<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #008000;">//</span><span style="color: #008000;">&nbsp;TODO&nbsp;Auto-generated&nbsp;method&nbsp;stub</span><span style="color: #008000;"><br /></span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #0000FF;">super</span>.onCreate();<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TelephonyManager&nbsp;telephonyManager&nbsp;=&nbsp;(TelephonyManager)&nbsp;getSystemService(Context.TELEPHONY_SERVICE);<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;telephonyManager.listen(<span style="color: #0000FF;">new</span>&nbsp;PhoneListener(),&nbsp;PhoneStateListener.LISTEN_CALL_STATE);<br />&nbsp;&nbsp;&nbsp;&nbsp;}<br />&nbsp;&nbsp;&nbsp;&nbsp;<br />&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #0000FF;">private</span>&nbsp;<span style="color: #0000FF;">final</span>&nbsp;<span style="color: #0000FF;">class</span>&nbsp;PhoneListener&nbsp;<span style="color: #0000FF;">extends</span>&nbsp;PhoneStateListener{<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #0000FF;">private</span>&nbsp;MediaRecorder&nbsp;mediaRecorder;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #0000FF;">private</span>&nbsp;File&nbsp;file;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #0000FF;">private</span>&nbsp;Vibrator&nbsp;vibrator&nbsp;=&nbsp;(Vibrator)&nbsp;getSystemService(VIBRATOR_SERVICE);<br /><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@Override<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #0000FF;">public</span>&nbsp;<span style="color: #0000FF;">void</span>&nbsp;onCallStateChanged(<span style="color: #0000FF;">int</span>&nbsp;state,&nbsp;String&nbsp;incomingNumber)&nbsp;{<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #0000FF;">try</span>&nbsp;{<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #0000FF;">switch</span>&nbsp;(state){<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #0000FF;">case</span>&nbsp;TelephonyManager.CALL_STATE_RINGING:&nbsp;<span style="color: #008000;">//</span><span style="color: #008000;">来电</span><span style="color: #008000;"><br /></span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #0000FF;">break</span>;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #0000FF;">case</span>&nbsp;TelephonyManager.CALL_STATE_OFFHOOK:&nbsp;<span style="color: #008000;">//</span><span style="color: #008000;">接通电话</span><span style="color: #008000;"><br /></span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;file&nbsp;=&nbsp;<span style="color: #0000FF;">new</span>&nbsp;File(Environment.getExternalStorageDirectory(),&nbsp;incomingNumber&nbsp;+&nbsp;System.currentTimeMillis()&nbsp;+&nbsp;".3gp");<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mediaRecorder&nbsp;=&nbsp;<span style="color: #0000FF;">new</span>&nbsp;MediaRecorder();<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mediaRecorder.setOutputFile(file.getAbsolutePath());<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mediaRecorder.prepare();<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mediaRecorder.start();<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Toast.makeText(getApplicationContext(),&nbsp;"电话已接通，开始录音。",&nbsp;Toast.LENGTH_SHORT).show();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #008000;">//</span><span style="color: #008000;">震动一下</span><span style="color: #008000;"><br /></span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vibrator.vibrate(100);<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #0000FF;">break</span>;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #0000FF;">case</span>&nbsp;TelephonyManager.CALL_STATE_IDLE:&nbsp;<span style="color: #008000;">//</span><span style="color: #008000;">挂断电话</span><span style="color: #008000;"><br /></span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #0000FF;">if</span>&nbsp;(mediaRecorder&nbsp;!=&nbsp;<span style="color: #0000FF;">null</span>){<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mediaRecorder.stop();<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mediaRecorder.release();<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mediaRecorder&nbsp;=&nbsp;<span style="color: #0000FF;">null</span>;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Toast.makeText(getApplicationContext(),&nbsp;"电话已挂断，录音停止。",&nbsp;Toast.LENGTH_SHORT).show();<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #008000;">//</span><span style="color: #008000;">震动一下</span><span style="color: #008000;"><br /></span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vibrator.vibrate(100);<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #0000FF;">break</span>;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<span style="color: #0000FF;">catch</span>&nbsp;(Exception&nbsp;e)&nbsp;{<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;e.printStackTrace();<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />&nbsp;&nbsp;&nbsp;&nbsp;}<br />}</div></div><p>&nbsp;</p><p>&nbsp;</p><p>通过广播接收者实现自启动，代码：</p><p><div class="cnblogs_code"><div><span style="color: #0000FF;">package</span>&nbsp;com.eboy.phoneListener;<br /><br /><span style="color: #0000FF;">import</span>&nbsp;android.content.Context;<br /><span style="color: #0000FF;">import</span>&nbsp;android.content.Intent;<br /><br /><span style="color: #0000FF;">public</span>&nbsp;<span style="color: #0000FF;">class</span>&nbsp;BroadcastReceiver&nbsp;<span style="color: #0000FF;">extends</span>&nbsp;android.content.BroadcastReceiver&nbsp;{<br /><br />&nbsp;&nbsp;&nbsp;&nbsp;@Override<br />&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #0000FF;">public</span>&nbsp;<span style="color: #0000FF;">void</span>&nbsp;onReceive(Context&nbsp;arg0,&nbsp;Intent&nbsp;arg1)&nbsp;{<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Intent&nbsp;service&nbsp;=&nbsp;<span style="color: #0000FF;">new</span>&nbsp;Intent(arg0,&nbsp;phoneService.<span style="color: #0000FF;">class</span>);<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;arg0.startService(service);<br />&nbsp;&nbsp;&nbsp;&nbsp;}<br />}</div></div></p><p>&nbsp;</p><p>main.xml：</p><p><div class="cnblogs_code"><div>&lt;manifest&nbsp;xmlns:android="http://schemas.android.com/apk/res/android"<br />&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #0000FF;">package</span>="com.eboy.phoneListener"<br />&nbsp;&nbsp;&nbsp;&nbsp;android:versionCode="1"<br />&nbsp;&nbsp;&nbsp;&nbsp;android:versionName="1.0"&gt;<br /><br />&nbsp;&nbsp;&nbsp;&nbsp;&lt;uses-sdk&nbsp;android:minSdkVersion="7"&nbsp;android:targetSdkVersion="15"&nbsp;/&gt;<br /><br />&nbsp;&nbsp;&nbsp;&nbsp;&lt;application&nbsp;android:label="@string/app_name"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;android:icon="@drawable/ic_launcher"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;android:theme="@style/AppTheme"&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;service&nbsp;android:name=".phoneService"&gt;&lt;/service&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;receiver&nbsp;android:name=".BroadcastReceiver"&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;intent-filter&nbsp;&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;action&nbsp;android:name="android.intent.action.BOOT_COMPLETED"/&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/intent-filter&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/receiver&gt;<br /><br />&nbsp;&nbsp;&nbsp;&nbsp;&lt;/application&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;<br />&nbsp;&nbsp;&nbsp;&nbsp;&lt;!--&nbsp;读取电话状态权限&nbsp;--&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&lt;uses-permission&nbsp;android:name="android.permission.READ_PHONE_STATE"/&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&lt;!--&nbsp;SD卡读写权限&nbsp;--&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&lt;uses-permission&nbsp;android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS"/&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&lt;uses-permission&nbsp;android:name="android.permission.WRITE_EXTERNAL_STORAGE"/&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&lt;!--&nbsp;录音权限&nbsp;--&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&lt;uses-permission&nbsp;android:name="android.permission.RECORD_AUDIO"/&gt;&nbsp;<br />&nbsp;&nbsp;&nbsp;&nbsp;&lt;!--&nbsp;震动权限&nbsp;--&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&lt;uses-permission&nbsp;android:name="android.permission.VIBRATE"/&gt;<br /><br />&lt;/manifest&gt;</div></div></p><p>&nbsp;</p><p>&nbsp;</p></div><div id="MySignature"></div>
+<div class="clear"></div>
+<div id="blog_post_info_block">
+<div id="BlogPostCategory"></div>
+<div id="EntryTag"></div>
+<div id="blog_post_info">
+</div>
+<div class="clear"></div>
+<div id="post_next_prev"></div>
+</div>
+
+
+		</div>
+		<p class="postfoot">
+			posted on <span id="post-date">2012-08-13 11:55</span> <a href='http://www.cnblogs.com/jxgxy/'>jxgxy</a> 阅读(<span id="post_view_count">...</span>) 评论(<span id="post_comment_count">...</span>)  <a href ="http://i.cnblogs.com/EditPosts.aspx?postid=2636155" rel="nofollow">编辑</a> <a href="#" onclick="AddToWz(2636155);return false;">收藏</a>
+		</p>
+	</div>
+	<script type="text/javascript">var allowComments=true,isLogined=false,cb_blogId=46550,cb_entryId=2636155,cb_blogApp=currentBlogApp,cb_blogUserGuid='9ffc460b-63cf-dd11-9e4d-001cf0cd104b',cb_entryCreatedDate='2012/8/13 11:55:00';loadViewCount(cb_entryId);</script>
+	
+	<a name="!comments"></a><div id="blog-comments-placeholder"></div><script type="text/javascript">var commentManager = new blogCommentManager();commentManager.renderComments(0);</script>
+<div id="comment_form" class="commentform">
+<a name="commentform"></a>
+<div id="divCommentShow"></div>
+<div id="comment_nav"><span id="span_refresh_tips"></span><a href="javascript:void(0);" id="lnk_RefreshComments" onclick="return RefreshCommentList();">刷新评论</a><a href="#" onclick="return RefreshPage();">刷新页面</a><a href="#top">返回顶部</a></div>
+<div id="comment_form_container"></div>
+<div class="ad_text_commentbox" id="ad_text_under_commentbox"></div>
+<div id="site_nav_under"><a href="http://www.cnblogs.com/" target="_blank" title="开发者的网上家园">博客园首页</a><a href="http://q.cnblogs.com/" target="_blank" title="程序员问答社区">博问</a><a href="http://news.cnblogs.com/" target="_blank" title="IT新闻">新闻</a><a href="http://home.cnblogs.com/ing/" target="_blank">闪存</a><a href="http://job.cnblogs.com/" target="_blank">程序员招聘</a><a href="http://kb.cnblogs.com/" target="_blank">知识库</a></div>
+<div id="opt_under_post"></div>
+<script type="text/javascript">
+    var enableGoogleAd = canShowAdsense(); var googletag = googletag || {}; googletag.cmd = googletag.cmd || [];
+    fixPostBodyFormat();
+</script>
+<div id="ad_under_post_holder">
+<script type='text/javascript'>
+    var googletag = googletag || {};
+    googletag.cmd = googletag.cmd || [];
+    (function () {
+        if (enableGoogleAd) {
+            var gads = document.createElement('script');
+            gads.async = true;
+            gads.type = 'text/javascript';
+            var useSSL = 'https:' == document.location.protocol;
+            gads.src = (useSSL ? 'https:' : 'http:') + '//www.googletagservices.com/tag/js/gpt.js';
+            var node = document.getElementsByTagName('script')[0];
+            node.parentNode.insertBefore(gads, node);
+        }
+    })();
+</script>
+<script type='text/javascript'>
+    try {
+        if (enableGoogleAd) {
+            googletag.cmd.push(function () {
+                googletag.defineSlot('/1090369/cnblogs_blogpost_C1_sitehome', [300, 250], 'div-gpt-ad-1346480159711-0').addService(googletag.pubads());
+                googletag.defineSlot('/1090369/cnblogs_blogpost_C2', [468, 60], 'div-gpt-ad-1410860226396-0').addService(googletag.pubads());
+                googletag.pubads().enableSingleRequest();
+                googletag.enableServices();
+            });
+        };
+    } catch (e) { }
+</script>
+<div id="google_ad_c1" class="c_ad_block">
+    <div id='div-gpt-ad-1346480159711-0' style='width:300px; height:250px;'>
+    <script type='text/javascript'>
+        try {
+            if (enableGoogleAd) {
+                googletag.cmd.push(function () { googletag.display('div-gpt-ad-1346480159711-0'); });            
+            } else {
+                $('#div-gpt-ad-1346480159711-0').hide();
+            }
+    } catch (e) { }
+    </script>
+    </div>
+</div>
+</div>
+<div id="under_post_news"></div>
+<div id="google_ad_c2" class="c_ad_block">
+<div id='div-gpt-ad-1410860226396-0' style='width:468px; height:60px;'>
+<script type='text/javascript'>
+try {
+    if (enableGoogleAd) {
+        googletag.cmd.push(function () { googletag.display('div-gpt-ad-1410860226396-0'); });
+    } else {
+        $('#div-gpt-ad-1346480159711-0').hide();
+    }
+} catch (e) { }
+</script>
+</div>
+</div>
+<div id="under_post_kb"></div>
+<div id="HistoryToday" class="c_ad_block"></div>
+<script type="text/javascript">
+$(function () {
+    loadNewsAndKb();
+    loadBlogSignature();
+    LoadPostInfoBlock(cb_blogId, cb_entryId, cb_blogApp, cb_blogUserGuid);
+    GetPrevNextPost(cb_entryId, cb_blogId, cb_entryCreatedDate);
+    loadOptUnderPost();
+    GetHistoryToday(cb_blogId, cb_blogApp, cb_entryCreatedDate);
+    setTimeout(function () { incrementViewCount(cb_entryId); }, 200);
+});
+</script>
+</div>
+
+</div>
+</div>
+<div id="leftmenu">
+
+
+<h3>导航</h3>
+<ul>
+<li>
+<a id="MyLinks1_HomeLink" href="http://www.cnblogs.com/">博客园</a></li>
+<li>
+<a id="MyLinks1_MyHomeLink" class="two_words" href="http://www.cnblogs.com/jxgxy/">首页</a></li>
+<li>
+<a id="MyLinks1_NewPostLink" rel="nofollow" href="http://i.cnblogs.com/EditPosts.aspx?opt=1">新随笔</a></li>
+<li>
+<a id="MyLinks1_ContactLink" accesskey="9" class="two_words" rel="nofollow" href="http://space.cnblogs.com/msg/send/jxgxy">联系</a></li>
+<li>
+<a id="MyLinks1_Syndication" class="two_words" href="http://www.cnblogs.com/jxgxy/rss">订阅</a>
+<a id="MyLinks1_XMLLink" href="http://www.cnblogs.com/jxgxy/rss"><img src="http://www.cnblogs.com/images/xml.gif" alt="订阅" /></a>
+</li>
+<li>
+<a id="MyLinks1_Admin" class="two_words" rel="nofollow" href="http://i.cnblogs.com/">管理</a></li>
+</ul>
+
+<div id="blog-calendar" style="display:none"></div><script type="text/javascript">loadBlogDefaultCalendar();</script>
+<meta name="vs_showGrid" content="False">
+
+<h3>公告</h3>
+<div id="blog-news"></div><script type="text/javascript">loadBlogNews();</script>
+
+<div id="blog-sidecolumn"></div><script type="text/javascript">loadBlogSideColumn();</script>
+
+</div>
+</div>
+<div class="clear"></div>
+<div id="footer">
+
+<p id="footer">
+	Powered by: 
+	<br />
+	
+	<a id="Footer1_Hyperlink3" NAME="Hyperlink1" href="http://www.cnblogs.com/" style="font-family:Verdana;font-size:12px;">博客园</a>
+	<br />
+	Copyright &copy; jxgxy
+</p>
+</div>
+</div>
+
+</body>
+</html>
